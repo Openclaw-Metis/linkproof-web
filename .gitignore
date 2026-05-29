@@ -6,3 +6,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.tsbuildinfo
+
+# Browser / QA tooling artifacts (preview, design-review, /browse)
+.chrome-profile*/
+*-review.png

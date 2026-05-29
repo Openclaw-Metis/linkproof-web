@@ -279,7 +279,9 @@ function homeHTML(state: AppState): string {
       body = checkingHTML(lang);
       break;
     case "resolved":
-      body = state.currentResult ? resultHTML(state.currentResult, lang) : inputHTML(state);
+      body = state.currentResult
+        ? resultHTML(state.currentResult, lang, state.lastCheckDegraded)
+        : inputHTML(state);
       break;
     case "blocked":
       body = blockedHTML(state.phase.message, lang) + inputHTML(state);
@@ -356,7 +358,7 @@ function blockedHTML(message: string, lang: AppLanguage): string {
     </section>`;
 }
 
-function resultHTML(result: URLCheckResult, lang: AppLanguage): string {
+function resultHTML(result: URLCheckResult, lang: AppLanguage, degraded: boolean): string {
   const allowsHandoff = result.riskLevel === "needsVerification" || result.riskLevel === "noPublicReport";
   const showsEmergency = result.riskLevel === "confirmedScam" || result.riskLevel === "highRisk";
   const tell165Class = result.riskLevel === "needsVerification" ? "caution" : "";
@@ -433,7 +435,11 @@ function resultHTML(result: URLCheckResult, lang: AppLanguage): string {
       <button class="btn btn-secondary" data-act="reset">＋ ${esc(t("checkURL", lang))}</button>
     </div>`;
 
-  return verdict + emergency + evidence + actions;
+  const degradedNote = degraded
+    ? `<div class="banner caution"><p class="b">⚠️ ${esc(t("datasetOfflineNote", lang))}</p></div>`
+    : "";
+
+  return verdict + degradedNote + emergency + evidence + actions;
 }
 
 function historyHTML(state: AppState): string {

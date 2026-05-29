@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 
-// Production builds are served from the GitHub Pages sub-path
-// https://<org>.github.io/linkproof-web/ , so assets need that base. Dev keeps
-// "/" for convenience. The dataset runs in an ES-module Web Worker.
-export default defineConfig(({ command }) => ({
-  base: command === "build" ? "/linkproof-web/" : "/",
+// Production (GitHub Pages) is served from https://<org>.github.io/linkproof-web/,
+// so `npm run build` uses that base. `--mode preview` builds with base "/" so a
+// local `vite preview` works at the root path (otherwise the sub-path base
+// renders a blank page locally). The dataset runs in an ES-module Web Worker.
+export default defineConfig(({ command, mode }) => ({
+  base: command === "build" && mode !== "preview" ? "/linkproof-web/" : "/",
   worker: { format: "es" },
   build: { target: "es2022" },
 }));

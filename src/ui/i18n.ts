@@ -34,7 +34,7 @@ export type L10nKey =
   | "datasetUpdateSucceeded" | "datasetAlreadyCurrent" | "datasetUpdateFailed"
   | "datasetUpdateRejected" | "datasetUpdateUnavailable" | "datasetBackgroundUpdateFailed"
   | "unavailableValue" | "externalProvider" | "category" | "installHint" | "shareUnsupported"
-  | "loadingDataset" | "firstLoadHint";
+  | "loadingDataset" | "firstLoadHint" | "datasetOfflineNote";
 
 const STRINGS: Record<L10nKey, LocalizedCopy> = {
   genericCheckError: { zhTW: "目前無法完成查核，請稍後再試。", enUS: "The check could not be completed. Please try again later." },
@@ -133,6 +133,7 @@ const STRINGS: Record<L10nKey, LocalizedCopy> = {
   shareUnsupported: { zhTW: "此瀏覽器不支援分享，已複製到剪貼簿。", enUS: "Sharing is unsupported here; copied to the clipboard instead." },
   loadingDataset: { zhTW: "正在準備公開資料包…", enUS: "Preparing the public-data bundle…" },
   firstLoadHint: { zhTW: "首次使用需要連線下載公開資料包，之後可離線查核。", enUS: "First use downloads the public-data bundle; later checks work offline." },
+  datasetOfflineNote: { zhTW: "公開資料包尚未載入，本次僅用本機規則判定，可能漏掉已在案的詐騙網站。連網後請再查一次。", enUS: "The public dataset is not loaded yet — this check used local rules only and may miss already-reported scams. Re-check once you're online." },
 };
 
 export function t(key: L10nKey, language: AppLanguage): string {

@@ -6,6 +6,8 @@
 import {
   newId,
   type AppLanguage,
+  type EvidenceRecord,
+  type NormalizedURL,
   type ReportChannel,
   type ReportRecord,
   type URLCheckResult,
@@ -18,6 +20,7 @@ import {
   type DatasetService,
   type RiskDatasetStatus,
   type RiskDatasetUpdateFailure,
+  type RiskDatasetUpdateResult,
 } from "../core/dataset-store";
 import { WorkerDatasetClient } from "./dataset-client";
 import { t } from "../ui/i18n";
@@ -47,6 +50,8 @@ export interface AppState {
   datasetUpdateMessage: string | null;
   datasetUpdateFailure: RiskDatasetUpdateFailure | null;
   datasetLastCheckAt: string | null;
+  /** True when the last check ran without the public dataset (heuristics only). */
+  lastCheckDegraded: boolean;
 }
 
 const KEYS = {
@@ -99,6 +104,9 @@ export class Store {
   private state: AppState;
   private listeners = new Set<Listener>();
   private readonly dataset: DatasetService;
+  // Resolves when the first dataset-acquisition attempt finishes (success or
+  // failure). submitCheck awaits this on first launch.
+  private datasetReady: Promise<void> = Promise.resolve();
 
   constructor(dataset: DatasetService = new WorkerDatasetClient()) {
     this.dataset = dataset;
@@ -116,6 +124,7 @@ export class Store {
       datasetUpdateMessage: null,
       datasetUpdateFailure: null,
       datasetLastCheckAt: readStorage(KEYS.lastCheck),
+      lastCheckDegraded: false,
     };
   }
 
@@ -150,9 +159,15 @@ export class Store {
   }
 
   async prepare(): Promise<void> {
-    await this.dataset.load();
-    this.set({ datasetStatus: await this.dataset.currentStatus() });
-    void this.updateDatasetIfNeeded();
+    try {
+      await this.dataset.load();
+      this.set({ datasetStatus: await this.dataset.currentStatus() });
+    } catch {
+      // Worker unavailable at startup — keep the unloaded status; checks will
+      // fall back to heuristics rather than hang.
+    }
+    this.datasetReady = this.updateDatasetIfNeeded();
+    this.datasetReady.catch(() => {});
   }
 
   async submitCheck(): Promise<void> {
@@ -160,34 +175,54 @@ export class Store {
     if (input.length === 0) return;
     this.set({ phase: { kind: "validating" } });
 
+    let normalized: NormalizedURL;
     try {
-      const normalized = normalize(input);
-      const evidence = await this.dataset.evidenceFor(normalized);
-      const result = makeResult(
-        input,
-        normalized,
-        evidence,
-        await this.dataset.currentBundleVersion(),
-      );
-      this.insertHistory(result);
-      this.set({ currentResult: result, phase: { kind: "resolved" } });
+      normalized = normalize(input);
     } catch (error) {
       const message =
         error instanceof URLNormalizationError
           ? error.message_(this.state.language)
           : t("genericCheckError", this.state.language);
       this.set({ phase: { kind: "blocked", message } });
+      return;
     }
+
+    // First launch: the dataset is still downloading in the worker. Wait for the
+    // initial fetch so an official scam is not missed and shown as noPublicReport.
+    if (this.state.datasetStatus.source === "missing") {
+      try {
+        await this.datasetReady;
+      } catch {
+        /* refresh failed (e.g. offline) — fall through to degraded mode */
+      }
+    }
+
+    // Match against the dataset; degrade to heuristics if the worker is down.
+    let evidence: EvidenceRecord[] = [];
+    let bundleVersion = this.state.datasetStatus.version;
+    let evidenceFailed = false;
+    try {
+      evidence = await this.dataset.evidenceFor(normalized);
+      bundleVersion = await this.dataset.currentBundleVersion();
+    } catch {
+      evidence = [];
+      evidenceFailed = true;
+    }
+
+    const degraded = this.state.datasetStatus.source === "missing" || evidenceFailed;
+    const result = makeResult(input, normalized, evidence, bundleVersion);
+    this.insertHistory(result);
+    this.set({ currentResult: result, phase: { kind: "resolved" }, lastCheckDegraded: degraded });
   }
 
   resetCheck(): void {
     this.state.rawInput = "";
-    this.set({ currentResult: null, phase: { kind: "empty" } });
+    this.set({ currentResult: null, phase: { kind: "empty" }, lastCheckDegraded: false });
   }
 
   useHistoryResult(result: URLCheckResult): void {
     this.state.rawInput = result.normalizedURL;
-    this.set({ currentResult: result, tab: "home", phase: { kind: "resolved" } });
+    this.set({ currentResult: result, tab: "home", phase: { kind: "resolved" }, lastCheckDegraded: false });
   }
 
   recordOfficialHandoff(channel: ReportChannel): void {
@@ -240,7 +275,13 @@ export class Store {
   }
 
   private async updateDatasetIfNeeded(): Promise<void> {
-    if (!(await this.dataset.isRemoteUpdateConfigured())) return;
+    let configured = false;
+    try {
+      configured = await this.dataset.isRemoteUpdateConfigured();
+    } catch {
+      configured = false;
+    }
+    if (!configured) return;
     const status = this.state.datasetStatus;
     const last = this.state.datasetLastCheckAt;
     const stale = !last || Date.now() - new Date(last).getTime() >= REFRESH_INTERVAL_MS;
@@ -249,7 +290,13 @@ export class Store {
   }
 
   async updateDataset(isAutomatic = false): Promise<void> {
-    if (!(await this.dataset.isRemoteUpdateConfigured())) {
+    let configured = false;
+    try {
+      configured = await this.dataset.isRemoteUpdateConfigured();
+    } catch {
+      configured = false;
+    }
+    if (!configured) {
       this.set({
         datasetUpdateState: "failed",
         datasetUpdateMessage: t("datasetUpdateUnavailable", this.state.language),
@@ -258,7 +305,13 @@ export class Store {
     }
 
     this.set({ datasetUpdateState: "updating", datasetUpdateMessage: null, datasetUpdateFailure: null });
-    const result = await this.dataset.refreshFromRemote();
+    let result: RiskDatasetUpdateResult;
+    try {
+      result = await this.dataset.refreshFromRemote();
+    } catch {
+      // Worker crashed / timed out — treat as a network failure and keep going.
+      result = { kind: "failed", status: this.state.datasetStatus, failure: "network" };
+    }
     const checkedAt = new Date().toISOString();
     writeStorage(KEYS.lastCheck, checkedAt);
 
