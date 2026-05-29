@@ -2,57 +2,95 @@
 
 A Progressive Web App port of the 鏈證 LinkProof anti-fraud URL checker, for
 iOS Safari users (no App Store account / native build required) and any desktop
-browser.
+or Android browser.
 
 > 點開前，先查證。 — Check the link before the tap.
 
-## Status
+**Live:** https://openclaw-metis.github.io/linkproof-web/
 
-Early build. The **parity-critical core** is in place and verified:
+## What it does
 
-- `src/core/punycode.ts` — RFC 3492 encoder (port of the iOS hand-rolled one)
-- `src/core/domain-policy.ts` — host + dataset-domain normalization, IDN, NFKC + ß→ss
-- `src/core/url-normalizer.ts` — defang restore, IDN, tracking-param strip, hand-parsed URL
-- `src/core/models.ts` — shared domain types + risk-level copy
+Paste a suspicious URL (or a whole LINE/SMS message — even a *defanged* one like
+`hxxps://006buy[.]store`). LinkProof normalizes it, checks it against Taiwan's
+public fraud datasets, runs local heuristic signals, and gives a four-level
+verdict with clear next steps. Everything runs on-device; nothing is uploaded.
 
-Still to build: risk decision engine, local dataset store (IndexedDB + SHA-256),
-UI screens, service worker, web manifest, GitHub Pages deploy.
+## Verdicts
+
+| Level | Colour | Meaning | Primary action |
+| --- | --- | --- | --- |
+| 已確認涉詐 confirmedScam | risk red | Matched official fraud data | Emergency steps (you may be a victim) |
+| 高風險 highRisk | caution amber | Multiple fraud signals | Emergency steps |
+| 需要查證 needsVerification | caution amber | Suspicious signal, unverified | **告訴 165** (report — likely not yet reported) |
+| 未發現公開通報 noPublicReport | neutral grey | No match — **not** "safe" | **告訴 165** |
+
+`noPublicReport` is deliberately **neutral grey, never green**: "no match" must
+never read as "safe".
+
+## Architecture
+
+```
+src/core/      parity-critical, framework-free, fully tested
+  punycode.ts            RFC 3492 encoder (port of the iOS hand-rolled one)
+  domain-policy.ts       host + dataset-domain normalization, IDN, NFKC + ß→ss
+  url-normalizer.ts      defang restore, hand-parsed URL, tracking-param strip
+  risk-decision-engine.ts heuristic signals, scoring, verdict + evidence
+  external-signals.ts    merge official + external (non-official capped at highRisk)
+  dataset-store.ts       fetch + SHA-256 verify + decode + IndexedDB cache + match
+  report-builder.ts      165 summary + defanged shareable warning
+  models.ts              shared domain types + bilingual copy
+src/app/       state.ts (store + persistence), dataset-worker + dataset-client
+src/ui/        i18n.ts, styles.css (design tokens), view.ts (screens + sheets)
+```
+
+The 12 MB dataset is fetched, SHA-256-verified, parsed, and indexed inside a
+**Web Worker**, so the main thread never blocks. Matching uses a domain-suffix
+index (O(labels) lookups) instead of scanning ~126k records.
 
 ## Parity contract
 
 This PWA is the **third consumer** of the shared behaviour fixtures in
 `linkproof/tests/parity/`. The same JSON drives the Swift (iOS) and Kotlin
-(Android) tests. `tests/parity/url-normalization.json` here is a **copy** and
-must stay in sync with the canonical file. Any divergence in URL normalization,
-IDN handling, or defang restore will fail the parity test.
+(Android) tests. The copies in `tests/parity/` must stay in sync:
 
 ```
-linkproof/tests/parity/*.json   ← canonical fixtures
+linkproof/tests/parity/*.json   ← canonical
         ├── iOS  XCTest          (Swift)
         ├── Android JUnit        (Kotlin)
         └── linkproof-web        (TypeScript, this repo)   ← copy, keep in sync
 ```
 
+- `url-normalization.json` (25) · `heuristic-decisions.json` (16) ·
+  `legitimate-domains.json` (10) · `external-merge.json` (7) — **81 tests pass.**
+
 ## Platform difference vs native apps
 
-The PWA **cannot expand short URLs** (`bit.ly`, `reurl.cc`, …). Browsers cannot
+The PWA **cannot expand short URLs** (`bit.ly`, `reurl.cc`, …): browsers cannot
 do DNS resolution or cross-origin HEAD probing, so the native apps'
 `ShortURLRedirectResolver` (and its SSRF defence) has no web equivalent. The PWA
-detects a short URL as a heuristic signal and tells the user plainly that it
-cannot see where the link leads — it does not silently pretend to.
+detects a short URL as a heuristic signal and flags it plainly — it does not
+silently pretend to follow it.
 
 ## Develop
 
 ```sh
 npm install
-npm test          # run parity + unit tests (Vitest)
+npm test          # parity + unit tests (Vitest)
 npm run typecheck # tsc --noEmit
-npm run dev       # Vite dev server (once the UI lands)
+npm run dev       # Vite dev server
 npm run build     # production build to dist/
+node scripts/gen-icons.mjs   # regenerate PWA icons
 ```
 
 ## Deploy
 
-Target: **GitHub Pages, sub-path** `https://<org>.github.io/linkproof-web/`.
-No custom domain. PWA uses hash routing to avoid 404s on sub-path refreshes.
-Dataset refresh runs on app launch (iOS PWA background sync is unreliable).
+Pushing to `main` builds with Vite (base `/linkproof-web/`) and deploys `dist/`
+to GitHub Pages via `.github/workflows/deploy.yml`. The dataset refreshes on
+launch (every 6 h) and is cached in IndexedDB for offline use.
+
+## Privacy
+
+Check history and official-channel records are stored only in this browser's
+`localStorage` and are never uploaded. The dataset is fetched read-only from the
+public `linkproof-datasets` repo. LinkProof is not a government agency and never
+submits reports for you — it only opens official channels you choose.
