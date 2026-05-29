@@ -1,0 +1,42 @@
+[
+  {
+    "input": "https://google.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://www.google.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://accounts.google.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://github.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://microsoft.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://apple.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://paypal.com",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://www.gov.tw",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://165.gov.tw",
+    "expectedRisk": "noPublicReport"
+  },
+  {
+    "input": "https://yahoo.com.tw",
+    "expectedRisk": "noPublicReport"
+  }
+]

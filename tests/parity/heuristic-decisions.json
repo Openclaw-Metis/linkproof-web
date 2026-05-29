@@ -1,0 +1,82 @@
+[
+  {
+    "input": "https://secure.bankofamerica.com",
+    "expectedRisk": "noPublicReport",
+    "expectedSignals": []
+  },
+  {
+    "input": "https://example.com/login",
+    "expectedRisk": "noPublicReport",
+    "expectedSignals": []
+  },
+  {
+    "input": "https://paypal.com/login/pay/verify",
+    "expectedRisk": "noPublicReport",
+    "expectedSignals": []
+  },
+  {
+    "input": "https://accounts.google.com/signin/security",
+    "expectedRisk": "noPublicReport",
+    "expectedSignals": []
+  },
+  {
+    "input": "https://example.com/payments-history",
+    "expectedRisk": "noPublicReport",
+    "expectedSignals": []
+  },
+  {
+    "input": "https://bit.ly/pay",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["short-url", "payment"]
+  },
+  {
+    "input": "https://xn--fiq228c.example/login",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["punycode-domain", "credential-or-otp"]
+  },
+  {
+    "input": "https://xn--fiq228c.example",
+    "expectedRisk": "needsVerification",
+    "expectedSignals": ["punycode-domain"]
+  },
+  {
+    "input": "https://example.com/login/pay/invest",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["credential-or-otp", "payment", "investment"]
+  },
+  {
+    "input": "https://secure-login.bank.example.com",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["subdomain-spoof"]
+  },
+  {
+    "input": "https://securelogin.attacker.example.com",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["subdomain-spoof"]
+  },
+  {
+    "input": "https://payverify.foo.example.com",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["subdomain-spoof"]
+  },
+  {
+    "input": "https://bankcheckout.x.example.com",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["subdomain-spoof"]
+  },
+  {
+    "input": "https://twilio.service.example.com",
+    "expectedRisk": "noPublicReport",
+    "expectedSignals": []
+  },
+  {
+    "input": "https://example.com/%E4%BB%98%E6%AC%BE/%E7%99%BB%E5%85%A5/%E6%8A%95%E8%B3%87",
+    "expectedRisk": "highRisk",
+    "expectedSignals": ["credential-or-otp", "payment", "investment"]
+  },
+  {
+    "input": "https://example.top",
+    "expectedRisk": "needsVerification",
+    "expectedSignals": ["high-abuse-tld"]
+  }
+]

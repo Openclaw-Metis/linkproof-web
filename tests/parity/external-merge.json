@@ -1,0 +1,100 @@
+[
+  {
+    "name": "official-confirmed-only",
+    "officialEvidence": [
+      {
+        "riskLevel": "confirmedScam",
+        "providerId": null
+      }
+    ],
+    "externalResults": [],
+    "expectedFinalRisk": "confirmedScam",
+    "expectedEvidenceOrder": ["official"]
+  },
+  {
+    "name": "external-confirmed-downgraded",
+    "officialEvidence": [],
+    "externalResults": [
+      {
+        "providerId": "mock",
+        "kind": "hit",
+        "suggestedRisk": "confirmedScam"
+      }
+    ],
+    "expectedFinalRisk": "highRisk",
+    "expectedEvidenceOrder": ["external:mock"]
+  },
+  {
+    "name": "both-confirmed-official-wins-order",
+    "officialEvidence": [
+      {
+        "riskLevel": "confirmedScam",
+        "providerId": null
+      }
+    ],
+    "externalResults": [
+      {
+        "providerId": "mock",
+        "kind": "hit",
+        "suggestedRisk": "confirmedScam"
+      }
+    ],
+    "expectedFinalRisk": "confirmedScam",
+    "expectedEvidenceOrder": ["official", "external:mock"]
+  },
+  {
+    "name": "official-high-external-confirmed-stays-high",
+    "officialEvidence": [
+      {
+        "riskLevel": "highRisk",
+        "providerId": null
+      }
+    ],
+    "externalResults": [
+      {
+        "providerId": "mock",
+        "kind": "hit",
+        "suggestedRisk": "confirmedScam"
+      }
+    ],
+    "expectedFinalRisk": "highRisk",
+    "expectedEvidenceOrder": ["official", "external:mock"]
+  },
+  {
+    "name": "external-needs-verification-passes-through",
+    "officialEvidence": [],
+    "externalResults": [
+      {
+        "providerId": "mock",
+        "kind": "hit",
+        "suggestedRisk": "needsVerification"
+      }
+    ],
+    "expectedFinalRisk": "needsVerification",
+    "expectedEvidenceOrder": ["external:mock"]
+  },
+  {
+    "name": "external-clean-noPublicReport",
+    "officialEvidence": [],
+    "externalResults": [
+      {
+        "providerId": "mock",
+        "kind": "clean"
+      }
+    ],
+    "expectedFinalRisk": "noPublicReport",
+    "expectedEvidenceOrder": []
+  },
+  {
+    "name": "quota-exceeded-ignored",
+    "officialEvidence": [],
+    "externalResults": [
+      {
+        "providerId": "mock",
+        "kind": "quotaExceeded"
+      }
+    ],
+    "expectedFinalRisk": "noPublicReport",
+    "expectedEvidenceOrder": []
+  }
+]

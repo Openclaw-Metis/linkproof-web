@@ -28,6 +28,20 @@ export function localized(copy: LocalizedCopy, language: AppLanguage): string {
   return language === "zh-TW" ? copy.zhTW : copy.enUS;
 }
 
+/**
+ * RFC-4122 identifier. Uses the Web Crypto `randomUUID` when available
+ * (browsers and Node 18+), with a deterministic-shape fallback otherwise.
+ */
+export function newId(): string {
+  const c: Crypto | undefined = (globalThis as { crypto?: Crypto }).crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (ch) => {
+    const r = (Math.random() * 16) | 0;
+    const v = ch === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export interface NormalizedURL {
   readonly rawInput: string;
   readonly normalizedURL: string;
