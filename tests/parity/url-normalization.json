@@ -1,0 +1,227 @@
+[
+  {
+    "input": "https://中文.example/path?utm_source=line&token=keep#frag",
+    "expected": {
+      "normalizedURL": "https://xn--fiq228c.example/path?token=keep",
+      "domain": "xn--fiq228c.example",
+      "path": "/path",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "中文.example/path?utm_source=line&token=keep",
+    "expected": {
+      "normalizedURL": "https://xn--fiq228c.example/path?token=keep",
+      "domain": "xn--fiq228c.example",
+      "path": "/path",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://www.中文網域.example/login?fbclid=1",
+    "expected": {
+      "normalizedURL": "https://xn--fiq39uwnldrx.example/login",
+      "domain": "xn--fiq39uwnldrx.example",
+      "path": "/login",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "請看 reurl.cc/Pay123，今晚截止",
+    "expected": {
+      "normalizedURL": "https://reurl.cc/Pay123",
+      "domain": "reurl.cc",
+      "path": "/Pay123",
+      "isShortURL": true
+    }
+  },
+  {
+    "input": "https://Example.COM/login?utm_source=line&token=keep#frag",
+    "expected": {
+      "normalizedURL": "https://example.com/login?token=keep",
+      "domain": "example.com",
+      "path": "/login",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://bücher.example/checkout?gclid=1",
+    "expected": {
+      "normalizedURL": "https://xn--bcher-kva.example/checkout",
+      "domain": "xn--bcher-kva.example",
+      "path": "/checkout",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://mañana.example/pay?utm_medium=sms&keep=1",
+    "expected": {
+      "normalizedURL": "https://xn--maana-pta.example/pay?keep=1",
+      "domain": "xn--maana-pta.example",
+      "path": "/pay",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://例え.テスト/path#frag",
+    "expected": {
+      "normalizedURL": "https://xn--r8jz45g.xn--zckzah/path",
+      "domain": "xn--r8jz45g.xn--zckzah",
+      "path": "/path",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://실례.테스트/login",
+    "expected": {
+      "normalizedURL": "https://xn--9n2bp8q.xn--9t4b11yi5a/login",
+      "domain": "xn--9n2bp8q.xn--9t4b11yi5a",
+      "path": "/login",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://مثال.إختبار",
+    "expected": {
+      "normalizedURL": "https://xn--mgbh0fb.xn--kgbechtv",
+      "domain": "xn--mgbh0fb.xn--kgbechtv",
+      "path": "",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://пример.рф/account",
+    "expected": {
+      "normalizedURL": "https://xn--e1afmkfd.xn--p1ai/account",
+      "domain": "xn--e1afmkfd.xn--p1ai",
+      "path": "/account",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://例子.中国",
+    "expected": {
+      "normalizedURL": "https://xn--fsqu00a.xn--fiqs8s",
+      "domain": "xn--fsqu00a.xn--fiqs8s",
+      "path": "",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://🎯.example/path",
+    "expected": {
+      "normalizedURL": "https://xn--gl8h.example/path",
+      "domain": "xn--gl8h.example",
+      "path": "/path",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://straße.example/login",
+    "expected": {
+      "normalizedURL": "https://strasse.example/login",
+      "domain": "strasse.example",
+      "path": "/login",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://CAFÉ.example/pay",
+    "expected": {
+      "normalizedURL": "https://xn--caf-dma.example/pay",
+      "domain": "xn--caf-dma.example",
+      "path": "/pay",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://café.example/pay",
+    "expected": {
+      "normalizedURL": "https://xn--caf-dma.example/pay",
+      "domain": "xn--caf-dma.example",
+      "path": "/pay",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://ｶﾀｶﾅ.example/path",
+    "expected": {
+      "normalizedURL": "https://xn--lcka3d1b.example/path",
+      "domain": "xn--lcka3d1b.example",
+      "path": "/path",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://example.com/%E4%BB%98%E6%AC%BE",
+    "expected": {
+      "normalizedURL": "https://example.com/%E4%BB%98%E6%AC%BE",
+      "domain": "example.com",
+      "path": "/付款",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "hxxps://006buy[.]store",
+    "expected": {
+      "normalizedURL": "https://006buy.store",
+      "domain": "006buy.store",
+      "path": "",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://example[.]com/login[.]html",
+    "expected": {
+      "normalizedURL": "https://example.com/login.html",
+      "domain": "example.com",
+      "path": "/login.html",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "example[dot]com",
+    "expected": {
+      "normalizedURL": "https://example.com",
+      "domain": "example.com",
+      "path": "",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "example (dot) com",
+    "expected": {
+      "normalizedURL": "https://example.com",
+      "domain": "example.com",
+      "path": "",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "請看 example。com 這個網址",
+    "expected": {
+      "normalizedURL": "https://example.com",
+      "domain": "example.com",
+      "path": "",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "http://127.0.0.1:8080/path?utm_source=line&token=keep#frag",
+    "expected": {
+      "normalizedURL": "http://127.0.0.1:8080/path?token=keep",
+      "domain": "127.0.0.1",
+      "path": "/path",
+      "isShortURL": false
+    }
+  },
+  {
+    "input": "https://example.com:8443/payments-history",
+    "expected": {
+      "normalizedURL": "https://example.com:8443/payments-history",
+      "domain": "example.com",
+      "path": "/payments-history",
+      "isShortURL": false
+    }
+  }
+]
