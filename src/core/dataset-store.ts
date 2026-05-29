@@ -339,6 +339,20 @@ export interface DatasetStoreOptions {
   fetchBytes?: FetchBytes;
 }
 
+/**
+ * The async surface the app talks to. `DatasetStore` implements it directly;
+ * `WorkerDatasetClient` implements it over a Web Worker so the 12 MB fetch +
+ * parse + index never touch the main thread.
+ */
+export interface DatasetService {
+  load(): Promise<void>;
+  evidenceFor(normalized: NormalizedURL): Promise<EvidenceRecord[]>;
+  currentStatus(): Promise<RiskDatasetStatus>;
+  currentBundleVersion(): Promise<string>;
+  refreshFromRemote(): Promise<RiskDatasetUpdateResult>;
+  isRemoteUpdateConfigured(): Promise<boolean>;
+}
+
 export class DatasetStore {
   private readonly cache: DatasetCache;
   private readonly manifestURL: string | null;

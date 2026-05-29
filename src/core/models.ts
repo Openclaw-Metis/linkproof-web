@@ -113,3 +113,53 @@ export function riskGuidance(level: RiskLevel, language: AppLanguage): string {
   };
   return localized(map[level], language);
 }
+
+// --- Report channels (parity with ReportChannel.officialChannels) ----------
+
+export type ReportChannelKind = "fraudPortal" | "police165" | "investigationBureau";
+
+export interface ReportChannel {
+  readonly id: ReportChannelKind;
+  readonly title: LocalizedCopy;
+  readonly detail: LocalizedCopy;
+  readonly officialURL: string;
+}
+
+export const OFFICIAL_CHANNELS: readonly ReportChannel[] = [
+  {
+    id: "fraudPortal",
+    title: { zhTW: "網詐通報查詢網", enUS: "Online fraud reporting portal" },
+    detail: {
+      zhTW: "適合告知可疑網路詐騙訊息；若需要正式報案，網站會引導至 165。",
+      enUS: "For suspicious online-fraud reports. For formal police reports, the site directs users to 165.",
+    },
+    officialURL: "https://fraudbuster.digiat.org.tw/accessibility/circular",
+  },
+  {
+    id: "police165",
+    title: { zhTW: "165 全民防騙網／報案檢舉", enUS: "165 anti-fraud reporting" },
+    detail: {
+      zhTW: "適合詐騙報案或檢舉；已受害或有急迫風險時請直接撥打 165。",
+      enUS: "For fraud reports and complaints. Call 165 directly if harm has occurred or the risk is urgent.",
+    },
+    officialURL: "https://165.npa.gov.tw/#/report/statement",
+  },
+  {
+    id: "investigationBureau",
+    title: { zhTW: "刑事警察局線上檢舉信箱", enUS: "Criminal Investigation Bureau mailbox" },
+    detail: {
+      zhTW: "適合補充案件細節、證據與後續查詢。",
+      enUS: "For case details, supporting evidence, and follow-up inquiry.",
+    },
+    officialURL: "https://www.cib.npa.gov.tw/ch/app/folder/2065",
+  },
+];
+
+export interface ReportRecord {
+  readonly id: string;
+  readonly checkId: string;
+  readonly channel: ReportChannel;
+  readonly openedAt: string; // ISO-8601
+  readonly normalizedURL: string;
+  readonly statusText: LocalizedCopy;
+}
