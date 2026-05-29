@@ -79,8 +79,10 @@ npm test          # parity + unit tests (Vitest)
 npm run typecheck # tsc --noEmit
 npm run dev       # Vite dev server
 npm run build     # production build to dist/
-node scripts/gen-icons.mjs   # regenerate PWA icons
 ```
+
+PWA icons (`public/icon-*.png`, `apple-touch-icon.png`) are the iOS app icon,
+resized from `apps/ios/.../AppIcon.appiconset/AppIcon-1024x1024@1x.png`.
 
 ## Deploy
 
