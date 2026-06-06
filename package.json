@@ -2,6 +2,7 @@
   "name": "linkproof-web",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "description": "鏈證 LinkProof — Progressive Web App. A faithful web port of the iOS / Android anti-fraud URL checker.",
   "scripts": {
