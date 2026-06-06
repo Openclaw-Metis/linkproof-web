@@ -8,6 +8,18 @@ or Android browser.
 
 **Live:** https://openclaw-metis.github.io/linkproof-web/
 
+## Why it matters
+
+Online scams are one of Taiwan's largest sources of consumer financial harm, and
+the most common attack is a single malicious link in a LINE message or SMS.
+鏈證 LinkProof gives anyone a fast, private way to check a link **before** they
+tap it — backed by Taiwan's public 165 government anti-fraud datasets and
+PhishTank, with every check running on-device. This repository is the
+open-source web/PWA client, so people can verify a link from any browser without
+installing an app or handing their data to anyone. It shares its verdict logic
+with the iOS and Android apps through cross-platform parity fixtures, and reads a
+daily-refreshed, SHA-256-verified public threat dataset.
+
 ## What it does
 
 Paste a suspicious URL (or a whole LINE/SMS message — even a *defanged* one like
@@ -61,7 +73,8 @@ linkproof/tests/parity/*.json   ← canonical
 ```
 
 - `url-normalization.json` (25) · `heuristic-decisions.json` (16) ·
-  `legitimate-domains.json` (10) · `external-merge.json` (7) — **81 tests pass.**
+  `legitimate-domains.json` (10) · `external-merge.json` (7), plus dataset-store,
+  report-builder, and store-resilience unit tests — **85 tests pass.**
 
 ## Platform difference vs native apps
 
@@ -96,3 +109,10 @@ Check history and official-channel records are stored only in this browser's
 `localStorage` and are never uploaded. The dataset is fetched read-only from the
 public `linkproof-datasets` repo. LinkProof is not a government agency and never
 submits reports for you — it only opens official channels you choose.
+
+## License
+
+MIT — see [LICENSE](LICENSE). © 2026 Openclaw-Metis.
+
+Threat data is fetched from the public `linkproof-datasets` repo and its upstream
+sources (Taiwan 165 open data, PhishTank) under their respective terms.
